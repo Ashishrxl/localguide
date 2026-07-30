@@ -47,7 +47,7 @@ st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 # Set up page configuration
 st.set_page_config(
-    page_title="Gemini Multimodal Assistant",
+    page_title="Local guide AI Assistant",
     page_icon="🎙️",
     layout="centered"
 )
