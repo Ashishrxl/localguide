@@ -10,13 +10,24 @@ st.set_page_config(
     layout="centered"
 )
 
-# Custom CSS to align the audio input widget seamlessly with the text input box
+# Custom CSS to force side-by-side layout on mobile screens
 st.markdown("""
     <style>
-    /* Adjust vertical alignment of column elements */
-    [data-testid="column"] {
-        display: flex;
-        align-items: flex-end;
+    /* Prevent column stacking on mobile screens */
+    div[data-testid="stHorizontalBlock"] {
+        flex-direction: row !important;
+        gap: 0.5rem !important;
+        align-items: flex-end !important;
+    }
+
+    /* Force columns to retain proportions on mobile */
+    div[data-testid="column"] {
+        min-width: 0px !important;
+    }
+
+    /* Fix audio input widget padding inside small column */
+    div[data-testid="stAudioInput"] {
+        width: 100% !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -34,13 +45,13 @@ if not api_key:
 # Initialize Client
 client = genai.Client(api_key=api_key)
 
-# Place Text Input and Audio Input side-by-side using Columns
-col1, col2 = st.columns([5, 1])
+# Enforce bottom alignment natively across columns
+col1, col2 = st.columns([5, 1], vertical_alignment="bottom")
 
 with col1:
     user_query = st.text_input(
         "Ask Gemini", 
-        placeholder="Type your query or use the mic...",
+        placeholder="Type query or record...",
         label_visibility="collapsed"
     )
 
