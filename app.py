@@ -3,14 +3,25 @@ import streamlit as st
 from google import genai
 from google.genai import types
 
-# Page config
+# Set up page configuration
 st.set_page_config(
     page_title="Gemini Multimodal Assistant",
     page_icon="🎙️",
     layout="centered"
 )
 
-st.title("🎙️ Travel & Search Assistant")
+# Custom CSS to align the audio input widget seamlessly with the text input box
+st.markdown("""
+    <style>
+    /* Adjust vertical alignment of column elements */
+    [data-testid="column"] {
+        display: flex;
+        align-items: flex-end;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+st.title("🗺️ Travel & Search Assistant")
 st.write("Ask via text or voice using Search & Maps grounding!")
 
 # Retrieve API Key
@@ -23,25 +34,34 @@ if not api_key:
 # Initialize Client
 client = genai.Client(api_key=api_key)
 
-# Input Section: Text + Audio
-user_query = st.text_input("Text Prompt (Optional if recording audio):", placeholder="e.g., Explain what I just asked or search for places near me...")
-audio_input = st.audio_input("Record your voice prompt:")
+# Place Text Input and Audio Input side-by-side using Columns
+col1, col2 = st.columns([5, 1])
 
-if st.button("Submit Query", type="primary"):
+with col1:
+    user_query = st.text_input(
+        "Ask Gemini", 
+        placeholder="Type your query or use the mic...",
+        label_visibility="collapsed"
+    )
+
+with col2:
+    audio_input = st.audio_input("Record", label_visibility="collapsed")
+
+if st.button("Submit Query", type="primary", use_container_width=True):
     if not user_query.strip() and not audio_input:
-        st.warning("Please provide either a text prompt or record an audio message.")
+        st.warning("Please enter a text prompt or record audio.")
     else:
         st.subheader("Results:")
         
         parts = []
 
-        # 1. Attach Audio Byte Data if present
+        # 1. Attach Audio Data if present
         if audio_input:
             audio_bytes = audio_input.read()
             parts.append(
                 types.Part.from_bytes(
                     data=audio_bytes,
-                    mime_type="audio/wav"  # st.audio_input records in wav/ogg format
+                    mime_type="audio/wav"
                 )
             )
 
@@ -49,10 +69,9 @@ if st.button("Submit Query", type="primary"):
         if user_query.strip():
             parts.append(types.Part.from_text(text=user_query))
         elif audio_input:
-            # Fallback text instruction if only audio is provided
             parts.append(
                 types.Part.from_text(
-                    text="Please listen to the attached audio and fulfill the user's request using search/maps grounding if needed."
+                    text="Please listen to the attached audio and fulfill the request using search or maps grounding if needed."
                 )
             )
 
@@ -63,7 +82,7 @@ if st.button("Submit Query", type="primary"):
             )
         ]
 
-        # Enable Search and Maps grounding tools
+        # Enable Grounding Tools
         tools = [
             types.Tool(google_search=types.GoogleSearch()),
             types.Tool(google_maps=types.GoogleMaps()),
