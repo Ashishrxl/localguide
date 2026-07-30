@@ -3,31 +3,51 @@ import streamlit as st
 from google import genai
 from google.genai import types
 
-# Set up page configuration
 st.set_page_config(
     page_title="Gemini Multimodal Assistant",
     page_icon="🎙️",
     layout="centered"
 )
 
-# Custom CSS to force side-by-side layout on mobile screens
+# Custom CSS to strictly force inline layout on Mobile
 st.markdown("""
     <style>
-    /* Prevent column stacking on mobile screens */
+    /* Force column wrapper to stay side-by-side on all screen sizes */
     div[data-testid="stHorizontalBlock"] {
+        display: flex !important;
         flex-direction: row !important;
-        gap: 0.5rem !important;
-        align-items: flex-end !important;
+        align-items: center !important;
+        flex-wrap: nowrap !important;
+        gap: 8px !important;
     }
 
-    /* Force columns to retain proportions on mobile */
+    /* Force mobile columns not to stack vertically */
     div[data-testid="column"] {
+        width: auto !important;
+        min-width: 0px !important;
+        flex: 1 1 auto !important;
+    }
+
+    /* Make text input expand to take most space */
+    div[data-testid="column"]:nth-child(1) {
+        flex: 4 !important;
+    }
+
+    /* Keep mic column compact */
+    div[data-testid="column"]:nth-child(2) {
+        flex: 1 !important;
+        max-width: 75px !important;
+    }
+
+    /* Streamlit Audio Input UI Adjustments for Compact View */
+    div[data-testid="stAudioInput"] {
+        width: 100% !important;
         min-width: 0px !important;
     }
 
-    /* Fix audio input widget padding inside small column */
-    div[data-testid="stAudioInput"] {
-        width: 100% !important;
+    /* Optional: Hide bulky audio timer text on small screens if needed */
+    div[data-testid="stAudioInput"] time {
+        display: none !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -45,8 +65,8 @@ if not api_key:
 # Initialize Client
 client = genai.Client(api_key=api_key)
 
-# Enforce bottom alignment natively across columns
-col1, col2 = st.columns([5, 1], vertical_alignment="bottom")
+# Layout Container
+col1, col2 = st.columns([4, 1])
 
 with col1:
     user_query = st.text_input(
@@ -66,7 +86,6 @@ if st.button("Submit Query", type="primary", use_container_width=True):
         
         parts = []
 
-        # 1. Attach Audio Data if present
         if audio_input:
             audio_bytes = audio_input.read()
             parts.append(
@@ -76,7 +95,6 @@ if st.button("Submit Query", type="primary", use_container_width=True):
                 )
             )
 
-        # 2. Attach Text Prompt if present
         if user_query.strip():
             parts.append(types.Part.from_text(text=user_query))
         elif audio_input:
@@ -93,7 +111,6 @@ if st.button("Submit Query", type="primary", use_container_width=True):
             )
         ]
 
-        # Enable Grounding Tools
         tools = [
             types.Tool(google_search=types.GoogleSearch()),
             types.Tool(google_maps=types.GoogleMaps()),
