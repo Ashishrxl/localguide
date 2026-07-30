@@ -58,7 +58,7 @@ if st.button("Search / Generate", type="primary"):
         # Generator function to stream tokens directly into Streamlit
         def stream_response():
             response_stream = client.models.generate_content_stream(
-                model="gemini-2.5-flash-lite",
+                model="gemini-2.0-flash",
                 contents=contents,
                 config=generate_content_config,
             )
