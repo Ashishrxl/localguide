@@ -50,8 +50,6 @@ if st.button("Search / Generate", type="primary"):
 
         generate_content_config = types.GenerateContentConfig(
             thinking_config=types.ThinkingConfig(
-                thinking_level="MINIMAL",
-            ),
             tools=tools,
         )
 
