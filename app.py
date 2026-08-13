@@ -15,7 +15,7 @@ st.iframe(
   } catch(e) { console.warn('parent DOM not reachable', e); }
   </script>
   """,
-  height=0
+  height=1
 )
 
 disable_footer_click = """
