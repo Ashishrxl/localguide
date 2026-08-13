@@ -3,7 +3,7 @@ import streamlit as st
 from google import genai
 from google.genai import types
 
-from streamlit.components.v1 import html
+# from streamlit.components.v1 import html
 
 
 html(
