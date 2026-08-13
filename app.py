@@ -6,7 +6,7 @@ from google.genai import types
 # from streamlit.components.v1 import html
 
 
-html(
+st.iframe(
   """
   <script>
   try {
